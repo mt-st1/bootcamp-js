@@ -16,4 +16,5 @@ store.subscribe(state => {
   }
 });
 
+// アプリケーション起動時に一覧取得するための Action を dispatch
 store.dispatch(createFetchTodoListAction());

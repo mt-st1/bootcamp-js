@@ -3,24 +3,31 @@
  */
 class Dispatcher extends EventTarget {
   dispatch() {
-    this.dispatchEvent(new CustomEvent("event"));
+    this.dispatchEvent(new CustomEvent('event'));
   }
 
   subscribe(subscriber) {
-    this.addEventListener("event", subscriber);
+    this.addEventListener('event', subscriber);
   }
 }
 
 /**
  * Action Creator and Action Types
  */
-const FETCH_TODO_ACTION_TYPE = "Fetch todo list from server";
+const FETCH_TODO_ACTION_TYPE = 'Fetch todo list from server';
 export const createFetchTodoListAction = () => ({
   type: FETCH_TODO_ACTION_TYPE,
   paylaod: undefined,
 });
 
-const CLEAR_ERROR = "Clear error from state";
+// addTodoParam: { name: string }
+const ADD_TODO_ACTION_TYPE = 'Add todo';
+export const createAddTodoAction = (addTodoParam) => ({
+  type: ADD_TODO_ACTION_TYPE,
+  payload: addTodoParam,
+});
+
+const CLEAR_ERROR = 'Clear error from state';
 export const clearError = () => ({
   type: CLEAR_ERROR,
   payload: undefined,
@@ -29,7 +36,7 @@ export const clearError = () => ({
 /**
  * Store Creator
  */
-const api = "http://localhost:3000/todo";
+const api = 'http://localhost:3000/todo';
 
 const defaultState = {
   todoList: [],
@@ -37,7 +44,7 @@ const defaultState = {
 };
 
 const headers = {
-  "Content-Type": "application/json; charset=utf-8",
+  'Content-Type': 'application/json; charset=utf-8',
 };
 
 const reducer = async (prevState, { type, payload }) => {
@@ -50,11 +57,24 @@ const reducer = async (prevState, { type, payload }) => {
         return { ...prevState, error: err };
       }
     }
+    case ADD_TODO_ACTION_TYPE: {
+      console.log('ADD_TODO_ACTION is dispatched!');
+      const body = JSON.stringify(payload);
+      const params = { method: 'POST', headers, body };
+      console.log(prevState);
+      try {
+        const addedTodo = await fetch(api, params).then((d) => d.json());
+        return { todoList: [...prevState.todoList, addedTodo], error: null };
+      } catch (err) {
+        console.error(err);
+        return { ...prevState, error: err };
+      }
+    }
     case CLEAR_ERROR: {
       return { ...prevState, error: null };
     }
     default: {
-      throw new Error("unexpected action type: %o", { type, payload });
+      throw new Error('unexpected action type: %o', { type, payload });
     }
   }
 };
@@ -65,9 +85,9 @@ export function createStore(initialState = defaultState) {
 
   const dispatch = async ({ type, payload }) => {
     console.group(type);
-    console.log("prev", state);
+    console.log('prev', state);
     state = await reducer(state, { type, payload });
-    console.log("next", state);
+    console.log('next', state);
     console.groupEnd();
     dispatcher.dispatch();
   };
