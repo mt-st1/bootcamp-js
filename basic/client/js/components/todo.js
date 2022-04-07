@@ -1,5 +1,8 @@
 import store from '../store.js';
-import { createUpdateTodoAction } from '../flux/index.js';
+import {
+  createDeleteTodoAction,
+  createUpdateTodoAction,
+} from '../flux/index.js';
 
 class Todo {
   constructor(parent, { id, name, done }) {
@@ -17,6 +20,14 @@ class Todo {
       console.log('Checkbox toggled!!');
       const { id, name, done } = this.props;
       store.dispatch(createUpdateTodoAction({ id, name, done: !done }));
+    });
+    const todoRemoveButtonElem = this.element.querySelector(
+      'div.todo-remove-button'
+    );
+    todoRemoveButtonElem.addEventListener('click', () => {
+      console.log('Remove button clicked!!!');
+      const { id } = this.props;
+      store.dispatch(createDeleteTodoAction({ id }));
     });
     this.mounted = true;
   }

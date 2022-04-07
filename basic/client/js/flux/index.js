@@ -34,6 +34,13 @@ export const createUpdateTodoAction = (updateTodoParam) => ({
   payload: updateTodoParam,
 });
 
+// deleteTodoParam: { id: number }
+const DELETE_TODO_ACTION_TYPE = 'Delete todo';
+export const createDeleteTodoAction = (deleteTodoParam) => ({
+  type: DELETE_TODO_ACTION_TYPE,
+  payload: deleteTodoParam,
+});
+
 const CLEAR_ERROR = 'Clear error from state';
 export const clearError = () => ({
   type: CLEAR_ERROR,
@@ -87,6 +94,18 @@ const reducer = async (prevState, { type, payload }) => {
         const updatedTodo = await fetch(`${api}/${id}`, params).then((d) =>
           d.json()
         );
+        return { todoList: newTodoList, error: null };
+      } catch (err) {
+        return { ...prevState, error: err };
+      }
+    }
+    case DELETE_TODO_ACTION_TYPE: {
+      console.log('DELETE_TODO_ACTION is dispatched!');
+      const { id } = payload;
+      const newTodoList = prevState.todoList.filter((todo) => todo.id !== id);
+      const params = { method: 'DELETE' };
+      try {
+        const res = await fetch(`${api}/${id}`, params);
         return { todoList: newTodoList, error: null };
       } catch (err) {
         return { ...prevState, error: err };
