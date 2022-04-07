@@ -27,6 +27,13 @@ export const createAddTodoAction = (addTodoParam) => ({
   payload: addTodoParam,
 });
 
+// updateTodoParam: { id: number, name: string, done: boolean }
+const UPDATE_TODO_ACTION_TYPE = 'Update todo';
+export const createUpdateTodoAction = (updateTodoParam) => ({
+  type: UPDATE_TODO_ACTION_TYPE,
+  payload: updateTodoParam,
+});
+
 const CLEAR_ERROR = 'Clear error from state';
 export const clearError = () => ({
   type: CLEAR_ERROR,
@@ -61,12 +68,27 @@ const reducer = async (prevState, { type, payload }) => {
       console.log('ADD_TODO_ACTION is dispatched!');
       const body = JSON.stringify(payload);
       const params = { method: 'POST', headers, body };
-      console.log(prevState);
       try {
         const addedTodo = await fetch(api, params).then((d) => d.json());
         return { todoList: [...prevState.todoList, addedTodo], error: null };
       } catch (err) {
-        console.error(err);
+        return { ...prevState, error: err };
+      }
+    }
+    case UPDATE_TODO_ACTION_TYPE: {
+      console.log('UPDATE_TODO_ACTION is dispatched!');
+      const { id, name, done } = payload;
+      const newTodoList = prevState.todoList.map((todo) =>
+        todo.id === id ? { ...todo, done } : todo
+      );
+      const body = JSON.stringify({ name, done });
+      const params = { method: 'PATCH', headers, body };
+      try {
+        const updatedTodo = await fetch(`${api}/${id}`, params).then((d) =>
+          d.json()
+        );
+        return { todoList: newTodoList, error: null };
+      } catch (err) {
         return { ...prevState, error: err };
       }
     }
