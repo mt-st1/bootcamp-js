@@ -12,7 +12,8 @@ class Todo {
     if (this.mounted) return;
     // TODO: ここにTODOの削除ボタンが押されたときの処理を追記
     // TODO: ここにTODOのチェックボックスが押されたときの処理を追記
-    this.element.addEventListener('change', () => {
+    const todoCheckboxElem = this.element.querySelector('input.todo-toggle');
+    todoCheckboxElem.addEventListener('change', () => {
       console.log('Checkbox toggled!!');
       const { id, name, done } = this.props;
       store.dispatch(createUpdateTodoAction({ id, name, done: !done }));
